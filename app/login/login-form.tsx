@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { Mail } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 type Status = "idle" | "sending" | "sent" | "error";
@@ -36,36 +37,43 @@ export function LoginForm({ initialError }: { initialError?: string }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full max-w-sm space-y-4 rounded-lg border border-black/10 p-6 dark:border-white/15"
+      className="w-full max-w-sm space-y-6 rounded-3xl bg-card p-8 shadow-[0_1px_2px_rgba(38,36,31,0.06)]"
     >
+      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-accent-orange text-lg font-bold">
+        m.
+      </div>
+
       <div className="space-y-1">
-        <h1 className="text-xl font-semibold">Вход</h1>
-        <p className="text-sm text-black/60 dark:text-white/60">
+        <h1 className="text-2xl font-bold">Вход</h1>
+        <p className="text-sm text-muted-foreground">
           Введите email — мы отправим ссылку для входа без пароля.
         </p>
       </div>
 
-      <div className="space-y-1">
+      <div className="space-y-1.5">
         <label htmlFor="email" className="text-sm font-medium">
           Email
         </label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          required
-          autoComplete="email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          placeholder="you@example.com"
-          className="w-full rounded-md border border-black/15 bg-transparent px-3 py-2 text-sm outline-none focus:border-black/40 dark:border-white/20 dark:focus:border-white/40"
-        />
+        <div className="flex items-center gap-2 rounded-full border border-border bg-background px-4 py-3">
+          <Mail className="h-4 w-4 shrink-0 text-muted-foreground" />
+          <input
+            id="email"
+            name="email"
+            type="email"
+            required
+            autoComplete="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            placeholder="you@example.com"
+            className="w-full bg-transparent text-sm outline-none"
+          />
+        </div>
       </div>
 
       <button
         type="submit"
         disabled={status === "sending"}
-        className="w-full rounded-md bg-foreground px-3 py-2 text-sm font-medium text-background disabled:opacity-60"
+        className="w-full rounded-full bg-foreground px-4 py-3 text-sm font-medium text-background disabled:opacity-60"
       >
         {status === "sending" ? "Отправка..." : "Отправить ссылку"}
       </button>
@@ -74,7 +82,9 @@ export function LoginForm({ initialError }: { initialError?: string }) {
         <p
           role="status"
           className={
-            status === "error" ? "text-sm text-red-600" : "text-sm text-green-600"
+            status === "error"
+              ? "rounded-2xl bg-red-100 px-4 py-3 text-sm text-red-700"
+              : "rounded-2xl bg-accent-lime/40 px-4 py-3 text-sm text-foreground"
           }
         >
           {message}

@@ -11,5 +11,5 @@ export function PortfolioView({ content }: { content: PartialBlock[] | null }) {
     initialContent: content && content.length > 0 ? content : undefined,
   });
 
-  return <BlockNoteView editor={editor} editable={false} />;
+  return <BlockNoteView editor={editor} editable={false} theme="light" />;
 }

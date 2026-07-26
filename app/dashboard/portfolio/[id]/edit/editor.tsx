@@ -13,6 +13,18 @@ type SaveStatus = "saved" | "saving" | "error";
 
 const DEBOUNCE_MS = 2000;
 
+const STATUS_STYLES: Record<SaveStatus, string> = {
+  saved: "bg-accent-lime/60 text-foreground",
+  saving: "bg-accent-orange/40 text-foreground",
+  error: "bg-red-100 text-red-700",
+};
+
+const STATUS_LABELS: Record<SaveStatus, string> = {
+  saved: "Сохранено",
+  saving: "Сохранение...",
+  error: "Ошибка сохранения",
+};
+
 export function PortfolioEditor({
   portfolioId,
   userId,
@@ -48,20 +60,14 @@ export function PortfolioEditor({
   }
 
   return (
-    <div className="flex flex-1 flex-col">
-      <div className="border-b border-black/10 px-6 py-3 text-sm dark:border-white/15">
-        {status === "saving" && (
-          <span className="text-black/60 dark:text-white/60">Сохранение...</span>
-        )}
-        {status === "saved" && (
-          <span className="text-green-600">Сохранено</span>
-        )}
-        {status === "error" && (
-          <span className="text-red-600">Ошибка сохранения</span>
-        )}
+    <div className="flex flex-1 flex-col gap-4 p-8">
+      <div className="flex justify-end">
+        <span className={`rounded-full px-3 py-1 text-xs font-medium ${STATUS_STYLES[status]}`}>
+          {STATUS_LABELS[status]}
+        </span>
       </div>
-      <div className="flex-1 overflow-y-auto p-6">
-        <BlockNoteView editor={editor} onChange={handleChange} />
+      <div className="flex-1 overflow-y-auto rounded-3xl bg-card p-6 shadow-[0_1px_2px_rgba(38,36,31,0.06)]">
+        <BlockNoteView editor={editor} onChange={handleChange} theme="light" />
       </div>
     </div>
   );

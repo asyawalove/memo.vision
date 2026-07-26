@@ -10,7 +10,7 @@ const getPublicPortfolio = cache(async (username: string, slug: string) => {
 
   const { data } = await supabase
     .from("portfolios")
-    .select("title, content, cover_image_url, profiles!inner(username)")
+    .select("title, content, cover_image_url, profiles!inner(username, display_name)")
     .eq("slug", slug)
     .eq("is_public", true)
     .eq("profiles.username", username)
@@ -52,13 +52,22 @@ export default async function PublicPortfolioPage({
     notFound();
   }
 
+  const profile = portfolio.profiles as unknown as {
+    username: string;
+    display_name: string | null;
+  };
+  const author = profile.display_name || `@${profile.username}`;
+
   return (
-    <main className="flex flex-1 flex-col">
-      <h1 className="border-b border-black/10 px-6 py-4 text-lg font-semibold dark:border-white/15">
-        {portfolio.title}
-      </h1>
-      <div className="flex-1 overflow-y-auto p-6">
-        <PortfolioView content={portfolio.content as PartialBlock[] | null} />
+    <main className="flex flex-1 justify-center bg-background px-6 py-12">
+      <div className="w-full max-w-3xl">
+        <div className="mb-8 space-y-2">
+          <h1 className="text-3xl font-bold">{portfolio.title}</h1>
+          <p className="text-sm text-muted-foreground">от {author}</p>
+        </div>
+        <div className="rounded-3xl bg-card p-8 shadow-[0_1px_2px_rgba(38,36,31,0.06)]">
+          <PortfolioView content={portfolio.content as PartialBlock[] | null} />
+        </div>
       </div>
     </main>
   );
