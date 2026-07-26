@@ -1,3 +1,5 @@
+import { cache } from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
@@ -5,17 +7,12 @@ import type { PartialBlock } from "@blocknote/core";
 import { createClient } from "@/lib/supabase/server";
 import { PortfolioEditor } from "./portfolio-editor-loader";
 
-export default async function EditPortfolioPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
+const getOwnedPortfolio = cache(async (id: string) => {
   const supabase = await createClient();
-
   const { data: userData } = await supabase.auth.getUser();
+
   if (!userData.user) {
-    redirect("/login");
+    return { kind: "unauthenticated" as const };
   }
 
   const { data: portfolio } = await supabase
@@ -25,8 +22,43 @@ export default async function EditPortfolioPage({
     .maybeSingle();
 
   if (!portfolio || portfolio.user_id !== userData.user.id) {
+    return { kind: "not-found" as const };
+  }
+
+  return { kind: "ok" as const, portfolio, userId: userData.user.id };
+});
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const result = await getOwnedPortfolio(id);
+
+  if (result.kind !== "ok") {
+    return {};
+  }
+
+  return { title: result.portfolio.title };
+}
+
+export default async function EditPortfolioPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const result = await getOwnedPortfolio(id);
+
+  if (result.kind === "unauthenticated") {
+    redirect("/login");
+  }
+  if (result.kind === "not-found") {
     notFound();
   }
+
+  const { portfolio, userId } = result;
 
   return (
     <main className="flex flex-1 flex-col">
@@ -50,7 +82,7 @@ export default async function EditPortfolioPage({
       </div>
       <PortfolioEditor
         portfolioId={portfolio.id}
-        userId={userData.user.id}
+        userId={userId}
         initialContent={portfolio.content as PartialBlock[] | null}
       />
     </main>

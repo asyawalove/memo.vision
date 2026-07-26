@@ -16,9 +16,9 @@ export function Sidebar({ displayName }: { displayName: string }) {
     <aside className="flex w-64 shrink-0 flex-col gap-8 border-r border-border px-4 py-6">
       <div className="flex items-center gap-2 px-2">
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent-orange text-sm font-bold">
-          m.
+          D.
         </div>
-        <span className="text-sm font-semibold">memo.vision</span>
+        <span className="text-sm font-semibold">Do.Folio</span>
       </div>
 
       <nav className="flex flex-col gap-1">

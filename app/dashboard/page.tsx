@@ -1,8 +1,13 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { createPortfolio } from "./actions";
 import { PortfolioCard } from "./portfolio-card";
+
+export const metadata: Metadata = {
+  title: "Мои портфолио",
+};
 
 function getGreeting(hour: number) {
   if (hour < 5) return "Доброй ночи";

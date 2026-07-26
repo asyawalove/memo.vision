@@ -8,7 +8,10 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "memo.vision",
+  title: {
+    template: "%s · Do.Folio",
+    default: "Do.Folio",
+  },
   description: "Конструктор портфолио",
 };
 
