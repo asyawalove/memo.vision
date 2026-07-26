@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
-import type { PartialBlock } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
-import { savePortfolioContent } from "./actions";
+import { schema, type PortfolioPartialBlock } from "@/lib/editor/schema";
+import { getFontClassName } from "@/lib/fonts";
+import { savePortfolioContent, savePortfolioStyle } from "./actions";
 import { uploadPortfolioImage } from "@/lib/supabase/storage";
+import { EditorSidePanel, type PortfolioStyleValues } from "./side-panel";
 
 type SaveStatus = "saved" | "saving" | "error";
 
@@ -29,12 +31,15 @@ export function PortfolioEditor({
   portfolioId,
   userId,
   initialContent,
+  initialStyle,
 }: {
   portfolioId: string;
   userId: string;
-  initialContent: PartialBlock[] | null;
+  initialContent: PortfolioPartialBlock[] | null;
+  initialStyle: PortfolioStyleValues;
 }) {
   const editor = useCreateBlockNote({
+    schema,
     initialContent:
       initialContent && initialContent.length > 0 ? initialContent : undefined,
     uploadFile: (file) => uploadPortfolioImage(file, userId, portfolioId),
@@ -42,6 +47,9 @@ export function PortfolioEditor({
 
   const [status, setStatus] = useState<SaveStatus>("saved");
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const [style, setStyle] = useState<PortfolioStyleValues>(initialStyle);
+  const [, startStyleTransition] = useTransition();
 
   useEffect(() => {
     return () => {
@@ -59,16 +67,43 @@ export function PortfolioEditor({
     }, DEBOUNCE_MS);
   }
 
+  function handleStyleChange(next: Partial<PortfolioStyleValues>) {
+    const merged = { ...style, ...next };
+    setStyle(merged);
+
+    startStyleTransition(async () => {
+      await savePortfolioStyle(portfolioId, {
+        background_color: merged.backgroundColor,
+        text_color: merged.textColor,
+        font_family: merged.fontFamily,
+        cover_image_url: merged.coverImageUrl,
+      });
+    });
+  }
+
   return (
-    <div className="flex flex-1 flex-col gap-4 p-8">
-      <div className="flex justify-end">
-        <span className={`rounded-full px-3 py-1 text-xs font-medium ${STATUS_STYLES[status]}`}>
-          {STATUS_LABELS[status]}
-        </span>
+    <div className="flex flex-1">
+      <div className="flex flex-1 flex-col gap-4 p-8">
+        <div className="flex justify-end">
+          <span className={`rounded-full px-3 py-1 text-xs font-medium ${STATUS_STYLES[status]}`}>
+            {STATUS_LABELS[status]}
+          </span>
+        </div>
+        <div
+          className={`flex-1 overflow-y-auto rounded-3xl p-6 shadow-[0_1px_2px_rgba(38,36,31,0.06)] ${getFontClassName(style.fontFamily)}`}
+          style={{ backgroundColor: style.backgroundColor, color: style.textColor }}
+        >
+          <BlockNoteView editor={editor} onChange={handleChange} theme="light" />
+        </div>
       </div>
-      <div className="flex-1 overflow-y-auto rounded-3xl bg-card p-6 shadow-[0_1px_2px_rgba(38,36,31,0.06)]">
-        <BlockNoteView editor={editor} onChange={handleChange} theme="light" />
-      </div>
+
+      <EditorSidePanel
+        editor={editor}
+        portfolioId={portfolioId}
+        userId={userId}
+        style={style}
+        onStyleChange={handleStyleChange}
+      />
     </div>
   );
 }

@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
-import type { PartialBlock } from "@blocknote/core";
+import type { PortfolioPartialBlock } from "@/lib/editor/schema";
+import type { PortfolioFont } from "@/lib/fonts";
 import { createClient } from "@/lib/supabase/server";
 import { PortfolioEditor } from "./portfolio-editor-loader";
 
@@ -17,7 +18,9 @@ const getOwnedPortfolio = cache(async (id: string) => {
 
   const { data: portfolio } = await supabase
     .from("portfolios")
-    .select("id, title, content, user_id, is_public")
+    .select(
+      "id, title, content, user_id, is_public, background_color, text_color, font_family, cover_image_url"
+    )
     .eq("id", id)
     .maybeSingle();
 
@@ -83,7 +86,13 @@ export default async function EditPortfolioPage({
       <PortfolioEditor
         portfolioId={portfolio.id}
         userId={userId}
-        initialContent={portfolio.content as PartialBlock[] | null}
+        initialContent={portfolio.content as PortfolioPartialBlock[] | null}
+        initialStyle={{
+          backgroundColor: portfolio.background_color,
+          textColor: portfolio.text_color,
+          fontFamily: portfolio.font_family as PortfolioFont,
+          coverImageUrl: portfolio.cover_image_url,
+        }}
       />
     </main>
   );
