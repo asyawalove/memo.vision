@@ -7,6 +7,7 @@ import type { PartialBlock } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
 import { savePortfolioContent } from "./actions";
+import { uploadPortfolioImage } from "@/lib/supabase/storage";
 
 type SaveStatus = "saved" | "saving" | "error";
 
@@ -14,14 +15,17 @@ const DEBOUNCE_MS = 2000;
 
 export function PortfolioEditor({
   portfolioId,
+  userId,
   initialContent,
 }: {
   portfolioId: string;
+  userId: string;
   initialContent: PartialBlock[] | null;
 }) {
   const editor = useCreateBlockNote({
     initialContent:
       initialContent && initialContent.length > 0 ? initialContent : undefined,
+    uploadFile: (file) => uploadPortfolioImage(file, userId, portfolioId),
   });
 
   const [status, setStatus] = useState<SaveStatus>("saved");

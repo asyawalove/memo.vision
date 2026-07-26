@@ -33,6 +33,7 @@ export default async function EditPortfolioPage({
       </h1>
       <PortfolioEditor
         portfolioId={portfolio.id}
+        userId={userData.user.id}
         initialContent={portfolio.content as PartialBlock[] | null}
       />
     </main>
