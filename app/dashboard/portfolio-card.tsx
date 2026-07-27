@@ -16,8 +16,6 @@ import {
   parseCoverStyle,
   type PortfolioCoverStyle,
 } from "@/lib/cover-patterns";
-import { getContentPreviewMarks, type PreviewMark } from "@/lib/portfolio-preview";
-import type { PortfolioPartialBlock } from "@/lib/editor/schema";
 
 type Portfolio = {
   id: string;
@@ -26,7 +24,6 @@ type Portfolio = {
   is_public: boolean;
   updated_at: string;
   cover_style: unknown;
-  content: unknown;
 };
 
 function formatUpdatedAt(iso: string): string {
@@ -45,39 +42,6 @@ function formatUpdatedAt(iso: string): string {
   }
 
   return date.toLocaleDateString("ru-RU", { day: "numeric", month: "long" });
-}
-
-function PagePreview({ marks }: { marks: PreviewMark[] }) {
-  if (marks.length === 0) {
-    return (
-      <div className="flex h-full flex-col justify-center gap-1 p-2">
-        <div className="h-0.5 w-3/4 rounded-full bg-black/10" />
-        <div className="h-0.5 w-1/2 rounded-full bg-black/10" />
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex h-full flex-col justify-center gap-1 overflow-hidden p-2">
-      {marks.map((mark, index) => {
-        if (mark.kind === "heading") {
-          return <div key={index} className="h-1 w-3/4 rounded-full bg-black/30" />;
-        }
-        if (mark.kind === "image") {
-          return <div key={index} className="h-3 w-full rounded-sm bg-black/15" />;
-        }
-        if (mark.kind === "callout") {
-          return <div key={index} className="h-1.5 w-full rounded-full bg-accent-orange/50" />;
-        }
-        if (mark.kind === "divider") {
-          return <div key={index} className="h-px w-full bg-black/15" />;
-        }
-        const width =
-          mark.width === "full" ? "w-full" : mark.width === "wide" ? "w-5/6" : "w-1/2";
-        return <div key={index} className={`h-0.5 ${width} rounded-full bg-black/15`} />;
-      })}
-    </div>
-  );
 }
 
 export function PortfolioCard({
@@ -100,10 +64,6 @@ export function PortfolioCard({
   const [isDeleted, setIsDeleted] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
   const titleInputRef = useRef<HTMLInputElement>(null);
-
-  const previewMarks = getContentPreviewMarks(
-    portfolio.content as PortfolioPartialBlock[] | null
-  );
 
   useEffect(() => {
     if (!pickerOpen) return;
@@ -181,20 +141,14 @@ export function PortfolioCard({
     <div className="flex flex-col gap-1.5">
       <div className="group relative">
         <Link href={`/dashboard/portfolio/${portfolio.id}/edit`} className="block">
-          <div className="relative aspect-[3/4] w-full">
-            <div className="absolute inset-0 translate-x-3 translate-y-3 rotate-3 rounded-lg border border-black/10 bg-[#FBF8F1] shadow-sm" />
-            <div className="absolute inset-0 translate-x-1.5 translate-y-1.5 rotate-2 rounded-lg border border-black/10 bg-[#FBF8F1] shadow-sm">
-              <PagePreview marks={previewMarks} />
-            </div>
-            <div
-              className="absolute inset-0 overflow-hidden rounded-lg shadow-md"
-              style={getCoverPatternStyle(coverStyle.pattern, coverStyle.color)}
-            >
-              <div className="absolute inset-y-0 left-0 w-1.5 bg-black/15" />
-              <div className="flex h-full w-full items-center justify-center p-3">
-                <div className="w-full max-w-[85%] rounded-sm border-2 border-black/25 bg-[#FBF8F1]/90 px-2 py-2 text-center shadow-sm">
-                  <p className="line-clamp-3 text-xs font-semibold text-foreground">{title}</p>
-                </div>
+          <div
+            className="relative aspect-[3/4] w-full overflow-hidden rounded-lg shadow-md"
+            style={getCoverPatternStyle(coverStyle.pattern, coverStyle.color)}
+          >
+            <div className="absolute inset-y-0 left-0 w-1.5 bg-black/15" />
+            <div className="flex h-full w-full items-center justify-center p-3">
+              <div className="w-full max-w-[85%] rounded-sm border-2 border-black/25 bg-[#FBF8F1]/90 px-2 py-2 text-center shadow-sm">
+                <p className="line-clamp-3 text-xs font-semibold text-foreground">{title}</p>
               </div>
             </div>
           </div>

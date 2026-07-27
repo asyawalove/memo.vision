@@ -40,7 +40,7 @@ export default async function DashboardPage() {
       .maybeSingle(),
     supabase
       .from("portfolios")
-      .select("id, title, slug, is_public, updated_at, cover_style, content")
+      .select("id, title, slug, is_public, updated_at, cover_style")
       .eq("user_id", userData.user.id)
       .order("created_at", { ascending: false }),
   ]);
