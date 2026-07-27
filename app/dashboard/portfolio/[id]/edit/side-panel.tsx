@@ -7,6 +7,7 @@ import {
   AlignLeft,
   AlignRight,
   Bold,
+  ChevronRight,
   Code,
   GalleryHorizontal,
   IndentDecrease,
@@ -240,6 +241,12 @@ export function EditorSidePanel({
               label="Плашка"
               title={'Например: "Моя роль", "Инструменты", "Ключевой инсайт"'}
               onClick={() => insertBlock({ type: "callout" })}
+            />
+            <PanelRow
+              icon={ChevronRight}
+              label="Сворачиваемый блок"
+              title={'Например: "Показать процесс/итерации"'}
+              onClick={() => insertBlock({ type: "toggleListItem" })}
             />
           </div>
         )}
