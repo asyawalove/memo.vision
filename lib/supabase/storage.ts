@@ -21,8 +21,14 @@ export async function uploadPortfolioImage(
     "bin";
   const path = `${userId}/${portfolioId}/${crypto.randomUUID()}.${extension}`;
 
+  // Reconstructing the file as a fresh in-memory Blob works around a known
+  // Safari/WebKit bug where fetch() sends an empty body for a File taken
+  // straight from the photo library inside FormData.
+  const buffer = await file.arrayBuffer();
+  const blob = new Blob([buffer], { type: file.type });
+
   const supabase = createClient();
-  const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
+  const { error } = await supabase.storage.from(BUCKET).upload(path, blob, {
     contentType: file.type,
   });
 
