@@ -9,6 +9,8 @@ import {
   Bold,
   ChevronRight,
   Code,
+  Columns2,
+  Columns3,
   GalleryHorizontal,
   IndentDecrease,
   IndentIncrease,
@@ -247,6 +249,26 @@ export function EditorSidePanel({
               label="Сворачиваемый блок"
               title={'Например: "Показать процесс/итерации"'}
               onClick={() => insertBlock({ type: "toggleListItem" })}
+            />
+            <PanelRow
+              icon={Columns2}
+              label="2 колонки"
+              onClick={() =>
+                insertBlock({
+                  type: "columns",
+                  props: { columnCount: "2" },
+                } as Parameters<typeof insertBlock>[0])
+              }
+            />
+            <PanelRow
+              icon={Columns3}
+              label="3 колонки"
+              onClick={() =>
+                insertBlock({
+                  type: "columns",
+                  props: { columnCount: "3" },
+                } as Parameters<typeof insertBlock>[0])
+              }
             />
           </div>
         )}
