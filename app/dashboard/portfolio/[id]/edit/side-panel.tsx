@@ -91,6 +91,7 @@ export function EditorSidePanel({
   onStyleChange: (next: Partial<PortfolioStyleValues>) => void;
 }) {
   const [tab, setTab] = useState<Tab>("insert");
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [activeStyles, setActiveStyles] = useState<{
     bold?: boolean;
     italic?: boolean;
@@ -98,6 +99,15 @@ export function EditorSidePanel({
   }>({});
   const [uploadingCover, setUploadingCover] = useState(false);
   const coverInputRef = useRef<HTMLInputElement>(null);
+
+  function handleTabClick(value: Tab) {
+    if (value === tab && mobileOpen) {
+      setMobileOpen(false);
+    } else {
+      setTab(value);
+      setMobileOpen(true);
+    }
+  }
 
   useEffect(() => {
     function refresh() {
@@ -172,13 +182,13 @@ export function EditorSidePanel({
   }
 
   return (
-    <aside className="flex w-64 shrink-0 flex-col border-l border-border">
-      <div className="flex border-b border-border p-2">
+    <aside className="fixed inset-x-0 bottom-0 z-30 flex max-h-[70vh] flex-col-reverse border-t border-border bg-background shadow-[0_-2px_12px_rgba(38,36,31,0.08)] md:static md:inset-auto md:z-auto md:max-h-none md:w-64 md:shrink-0 md:flex-col md:border-l md:border-t-0 md:shadow-none">
+      <div className="flex shrink-0 gap-1 border-t border-border p-2 md:border-b md:border-t-0">
         {TABS.map((t) => (
           <button
             key={t.value}
             type="button"
-            onClick={() => setTab(t.value)}
+            onClick={() => handleTabClick(t.value)}
             className={`flex-1 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
               tab === t.value
                 ? "bg-foreground text-background"
@@ -190,7 +200,9 @@ export function EditorSidePanel({
         ))}
       </div>
 
-      <div className="flex-1 overflow-y-auto p-2">
+      <div
+        className={`overflow-y-auto p-2 md:block md:flex-1 ${mobileOpen ? "block" : "hidden"}`}
+      >
         {tab === "insert" && (
           <div className="flex flex-col gap-0.5">
             <PanelRow icon={Type} label="Текст" onClick={() => insertBlock({ type: "paragraph" })} />

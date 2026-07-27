@@ -62,10 +62,10 @@ export default async function PublicPortfolioPage({
   const author = profile.display_name || `@${profile.username}`;
 
   return (
-    <main className="flex flex-1 justify-center bg-background px-6 py-12">
+    <main className="flex flex-1 justify-center bg-background px-4 py-8 sm:px-6 sm:py-12">
       <div className="w-full max-w-3xl">
-        <div className="mb-8 space-y-2">
-          <h1 className="text-3xl font-bold">{portfolio.title}</h1>
+        <div className="mb-6 space-y-2 sm:mb-8">
+          <h1 className="text-2xl font-bold sm:text-3xl">{portfolio.title}</h1>
           <p className="text-sm text-muted-foreground">от {author}</p>
         </div>
 
@@ -78,10 +78,10 @@ export default async function PublicPortfolioPage({
             <img
               src={portfolio.cover_image_url}
               alt=""
-              className="h-64 w-full object-cover"
+              className="h-40 w-full object-cover sm:h-64"
             />
           )}
-          <div className="p-8">
+          <div className="overflow-x-auto p-4 sm:p-8">
             <PortfolioView content={portfolio.content as PortfolioPartialBlock[] | null} />
           </div>
         </div>

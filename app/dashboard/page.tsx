@@ -49,16 +49,16 @@ export default async function DashboardPage() {
   const firstName = (profile?.display_name || profile?.username || "").split(" ")[0];
 
   return (
-    <main className="flex flex-1 flex-col gap-8 p-8">
+    <main className="flex flex-1 flex-col gap-6 p-4 sm:gap-8 sm:p-6 lg:p-8">
       <div>
-        <h1 className="text-2xl font-bold">
+        <h1 className="text-xl font-bold sm:text-2xl">
           {getGreeting(new Date().getHours())}
           {firstName ? `, ${firstName}` : ""}!
         </h1>
         <p className="text-sm text-muted-foreground">{getToday()}</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
         <form action={createPortfolio} className="contents">
           <button
             type="submit"

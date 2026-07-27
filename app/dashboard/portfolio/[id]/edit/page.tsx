@@ -65,19 +65,21 @@ export default async function EditPortfolioPage({
 
   return (
     <main className="flex flex-1 flex-col">
-      <div className="flex items-center gap-4 border-b border-border px-8 py-5">
+      <div className="flex items-center gap-3 border-b border-border px-4 py-4 sm:gap-4 sm:px-6 sm:py-5 lg:px-8">
         <Link
           href="/dashboard"
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border text-foreground/70 hover:bg-black/5"
         >
           <ArrowLeft className="h-4 w-4" />
         </Link>
-        <h1 className="text-lg font-semibold">{portfolio.title}</h1>
+        <h1 className="min-w-0 flex-1 truncate text-base font-semibold sm:flex-none sm:text-lg">
+          {portfolio.title}
+        </h1>
         <span
           className={
             portfolio.is_public
-              ? "rounded-full bg-accent-lime/60 px-3 py-1 text-xs font-medium text-foreground"
-              : "rounded-full bg-black/5 px-3 py-1 text-xs font-medium text-muted-foreground"
+              ? "shrink-0 rounded-full bg-accent-lime/60 px-3 py-1 text-xs font-medium text-foreground"
+              : "shrink-0 rounded-full bg-black/5 px-3 py-1 text-xs font-medium text-muted-foreground"
           }
         >
           {portfolio.is_public ? "Опубликовано" : "Черновик"}

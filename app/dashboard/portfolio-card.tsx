@@ -116,7 +116,7 @@ export function PortfolioCard({
             setPickerOpen((value) => !value);
           }}
           aria-label="Изменить обложку"
-          className="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/85 text-foreground opacity-0 shadow-sm transition-opacity group-hover:opacity-100"
+          className="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/85 text-foreground opacity-100 shadow-sm transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
         >
           <Palette className="h-3.5 w-3.5" />
         </button>
