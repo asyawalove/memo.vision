@@ -48,23 +48,32 @@ export function LoginForm({ initialError }: { initialError?: string }) {
     setStatus("sending");
     setMessage(null);
 
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithOtp({
-      email: targetEmail,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithOtp({
+        email: targetEmail,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
 
-    if (error) {
+      if (error) {
+        setStatus("error");
+        setMessage(describeAuthError(error));
+        return;
+      }
+
+      setStatus("sent");
+      setMessage("Письмо отправлено. Проверьте почту.");
+      setCooldown(RESEND_COOLDOWN_SECONDS);
+    } catch (thrown) {
+      // TEMP DEBUG: the request itself threw (network/CORS/etc.) instead of
+      // resolving with a Supabase error — without this the button was
+      // getting stuck on "Отправка..." with no feedback at all.
+      console.error("[auth] signInWithOtp threw:", thrown);
       setStatus("error");
-      setMessage(describeAuthError(error));
-      return;
+      setMessage(null);
     }
-
-    setStatus("sent");
-    setMessage("Письмо отправлено. Проверьте почту.");
-    setCooldown(RESEND_COOLDOWN_SECONDS);
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -81,17 +90,23 @@ export function LoginForm({ initialError }: { initialError?: string }) {
     setStatus("sending");
     setMessage(null);
 
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
 
-    if (error) {
+      if (error) {
+        setStatus("error");
+        setMessage(describeAuthError(error));
+      }
+    } catch (thrown) {
+      console.error("[auth] signInWithOAuth threw:", thrown);
       setStatus("error");
-      setMessage(describeAuthError(error));
+      setMessage(null);
     }
   }
 
