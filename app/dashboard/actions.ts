@@ -31,7 +31,7 @@ export async function createPortfolio() {
     .single();
 
   if (error || !data) {
-    redirect("/dashboard");
+    return { error: error?.message ?? "Не удалось создать портфолио" };
   }
 
   redirect(`/dashboard/portfolio/${data.id}/edit`);
