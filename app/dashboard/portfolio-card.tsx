@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState, useTransition } from "react";
-import { Check, Palette, Share2, Trash2 } from "lucide-react";
+import { Check, Palette, Pencil, Share2, Trash2 } from "lucide-react";
 import {
   deletePortfolio,
   renamePortfolio,
@@ -182,8 +182,8 @@ export function PortfolioCard({
       <div className="group relative">
         <Link href={`/dashboard/portfolio/${portfolio.id}/edit`} className="block">
           <div className="relative aspect-[3/4] w-full">
-            <div className="absolute inset-0 translate-x-2 translate-y-2 rotate-2 rounded-lg border border-black/10 bg-[#FBF8F1] shadow-sm" />
-            <div className="absolute inset-0 translate-x-1 translate-y-1 rotate-1 rounded-lg border border-black/10 bg-[#FBF8F1] shadow-sm">
+            <div className="absolute inset-0 translate-x-3 translate-y-3 rotate-3 rounded-lg border border-black/10 bg-[#FBF8F1] shadow-sm" />
+            <div className="absolute inset-0 translate-x-1.5 translate-y-1.5 rotate-2 rounded-lg border border-black/10 bg-[#FBF8F1] shadow-sm">
               <PagePreview marks={previewMarks} />
             </div>
             <div
@@ -319,9 +319,12 @@ export function PortfolioCard({
             type="button"
             onClick={startEditingTitle}
             title="Переименовать"
-            className="block w-full truncate text-left text-xs font-semibold hover:underline"
+            className="group/title flex w-full items-center gap-1 text-left"
           >
-            {title}
+            <span className="min-w-0 flex-1 truncate text-xs font-semibold group-hover/title:underline">
+              {title}
+            </span>
+            <Pencil className="h-3 w-3 shrink-0 text-muted-foreground opacity-100 sm:opacity-0 sm:group-hover/title:opacity-100" />
           </button>
         )}
         <p className="text-[11px] text-muted-foreground">
