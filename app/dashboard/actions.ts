@@ -77,3 +77,55 @@ export async function setPortfolioCoverStyle(
 
   return { error: error?.message ?? null };
 }
+
+export async function renamePortfolio(portfolioId: string, title: string) {
+  const supabase = await createClient();
+  const { data: userData } = await supabase.auth.getUser();
+
+  if (!userData.user) {
+    return { error: "Не авторизован" };
+  }
+
+  const trimmed = title.trim().slice(0, 200);
+  if (!trimmed) {
+    return { error: "Название не может быть пустым" };
+  }
+
+  const { error } = await supabase
+    .from("portfolios")
+    .update({ title: trimmed })
+    .eq("id", portfolioId)
+    .eq("user_id", userData.user.id);
+
+  revalidatePath("/dashboard");
+  revalidatePath(`/dashboard/portfolio/${portfolioId}/edit`);
+
+  return { error: error?.message ?? null };
+}
+
+export async function deletePortfolio(portfolioId: string) {
+  const supabase = await createClient();
+  const { data: userData } = await supabase.auth.getUser();
+
+  if (!userData.user) {
+    return { error: "Не авторизован" };
+  }
+
+  const prefix = `${userData.user.id}/${portfolioId}`;
+  const { data: files } = await supabase.storage.from("portfolio-images").list(prefix);
+  if (files && files.length > 0) {
+    await supabase.storage
+      .from("portfolio-images")
+      .remove(files.map((file) => `${prefix}/${file.name}`));
+  }
+
+  const { error } = await supabase
+    .from("portfolios")
+    .delete()
+    .eq("id", portfolioId)
+    .eq("user_id", userData.user.id);
+
+  revalidatePath("/dashboard");
+
+  return { error: error?.message ?? null };
+}

@@ -40,7 +40,7 @@ export default async function DashboardPage() {
       .maybeSingle(),
     supabase
       .from("portfolios")
-      .select("id, title, slug, is_public, updated_at, cover_style")
+      .select("id, title, slug, is_public, updated_at, cover_style, content")
       .eq("user_id", userData.user.id)
       .order("created_at", { ascending: false }),
   ]);
@@ -57,7 +57,7 @@ export default async function DashboardPage() {
         <p className="text-sm text-muted-foreground">{getToday()}</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
+      <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4 sm:gap-4 lg:grid-cols-6 xl:grid-cols-7">
         <NewPortfolioButton />
 
         {portfolios?.map((portfolio) => (

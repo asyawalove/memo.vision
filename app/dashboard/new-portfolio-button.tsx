@@ -24,10 +24,10 @@ export function NewPortfolioButton() {
         type="button"
         disabled={isPending}
         onClick={handleClick}
-        className="flex aspect-[3/4] w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-black/20 text-muted-foreground transition-colors hover:border-black/35 hover:text-foreground disabled:opacity-60"
+        className="flex aspect-[3/4] w-full flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-black/20 p-2 text-center text-muted-foreground transition-colors hover:border-black/35 hover:text-foreground disabled:opacity-60"
       >
-        <Plus className="h-6 w-6" />
-        <span className="text-sm font-medium">
+        <Plus className="h-5 w-5 shrink-0" />
+        <span className="text-xs font-medium leading-tight">
           {isPending ? "Создаём..." : "Новое портфолио"}
         </span>
       </button>
