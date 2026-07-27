@@ -1,40 +1,84 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useTransition } from "react";
-import { Check, Copy, ImageOff } from "lucide-react";
-import { setPortfolioVisibility } from "./actions";
+import { useEffect, useRef, useState, useTransition } from "react";
+import { Check, Copy, Palette } from "lucide-react";
+import { setPortfolioCoverStyle, setPortfolioVisibility } from "./actions";
+import {
+  COVER_COLORS,
+  COVER_PATTERNS,
+  getCoverPatternStyle,
+  parseCoverStyle,
+  type PortfolioCoverStyle,
+} from "@/lib/cover-patterns";
 
 type Portfolio = {
   id: string;
   title: string;
   slug: string;
-  cover_image_url: string | null;
   is_public: boolean;
+  updated_at: string;
+  cover_style: unknown;
 };
 
-const COVER_ACCENTS = ["bg-accent-pink", "bg-accent-lime", "bg-accent-orange"];
+function formatUpdatedAt(iso: string): string {
+  const date = new Date(iso);
+  const now = new Date();
+  const time = date.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+
+  if (date.toDateString() === now.toDateString()) {
+    return `Сегодня в ${time}`;
+  }
+
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+  if (date.toDateString() === yesterday.toDateString()) {
+    return `Вчера в ${time}`;
+  }
+
+  return date.toLocaleDateString("ru-RU", { day: "numeric", month: "long" });
+}
 
 export function PortfolioCard({
   portfolio,
   username,
-  accentIndex,
 }: {
   portfolio: Portfolio;
   username: string;
-  accentIndex: number;
 }) {
   const [isPublic, setIsPublic] = useState(portfolio.is_public);
+  const [coverStyle, setCoverStyle] = useState<PortfolioCoverStyle>(
+    parseCoverStyle(portfolio.cover_style)
+  );
   const [isPending, startTransition] = useTransition();
   const [copied, setCopied] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const pickerRef = useRef<HTMLDivElement>(null);
 
-  const accent = COVER_ACCENTS[accentIndex % COVER_ACCENTS.length];
+  useEffect(() => {
+    if (!pickerOpen) return;
+    function handleClickOutside(event: MouseEvent) {
+      if (pickerRef.current && !pickerRef.current.contains(event.target as Node)) {
+        setPickerOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [pickerOpen]);
 
   function handleToggle() {
     const next = !isPublic;
     setIsPublic(next);
     startTransition(async () => {
       await setPortfolioVisibility(portfolio.id, next);
+    });
+  }
+
+  function handleCoverChange(next: Partial<PortfolioCoverStyle>) {
+    const merged = { ...coverStyle, ...next };
+    setCoverStyle(merged);
+    startTransition(async () => {
+      await setPortfolioCoverStyle(portfolio.id, merged);
     });
   }
 
@@ -46,40 +90,97 @@ export function PortfolioCard({
   }
 
   return (
-    <div className="flex flex-col gap-4 rounded-3xl bg-card p-4 shadow-[0_1px_2px_rgba(38,36,31,0.06)]">
-      <Link href={`/dashboard/portfolio/${portfolio.id}/edit`} className="block">
-        <div
-          className={`aspect-video w-full overflow-hidden rounded-2xl ${
-            portfolio.cover_image_url ? "bg-black/5" : accent
-          }`}
-        >
-          {portfolio.cover_image_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={portfolio.cover_image_url}
-              alt=""
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-foreground/40">
-              <ImageOff className="h-6 w-6" />
+    <div className="flex flex-col gap-2">
+      <div className="group relative">
+        <Link href={`/dashboard/portfolio/${portfolio.id}/edit`} className="block">
+          <div
+            className="relative aspect-[3/4] w-full overflow-hidden rounded-xl shadow-md"
+            style={getCoverPatternStyle(coverStyle.pattern, coverStyle.color)}
+          >
+            <div className="absolute inset-y-0 left-0 w-2.5 bg-black/15" />
+            <div className="flex h-full w-full items-center justify-center p-6">
+              <div className="w-full max-w-[82%] rounded-sm border-2 border-black/25 bg-[#FBF8F1]/90 px-3 py-4 text-center shadow-sm">
+                <p className="line-clamp-4 text-sm font-semibold text-foreground">
+                  {portfolio.title}
+                </p>
+              </div>
             </div>
-          )}
-        </div>
-        <h2 className="mt-3 truncate text-base font-semibold">{portfolio.title}</h2>
-      </Link>
+          </div>
+        </Link>
 
-      <div className="flex items-center justify-between">
-        <span
-          className={
-            isPublic
-              ? "rounded-full bg-accent-lime/60 px-3 py-1 text-xs font-medium text-foreground"
-              : "rounded-full bg-black/5 px-3 py-1 text-xs font-medium text-muted-foreground"
-          }
+        <button
+          type="button"
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            setPickerOpen((value) => !value);
+          }}
+          aria-label="Изменить обложку"
+          className="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/85 text-foreground opacity-0 shadow-sm transition-opacity group-hover:opacity-100"
         >
-          {isPublic ? "Опубликовано" : "Черновик"}
-        </span>
+          <Palette className="h-3.5 w-3.5" />
+        </button>
 
+        {pickerOpen && (
+          <div
+            ref={pickerRef}
+            onClick={(event) => event.stopPropagation()}
+            className="absolute right-2 top-11 z-20 w-56 rounded-xl bg-white p-3 shadow-lg"
+          >
+            <p className="mb-2 text-xs font-medium text-muted-foreground">Узор</p>
+            <div className="mb-3 grid grid-cols-5 gap-2">
+              {COVER_PATTERNS.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  title={option.label}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    handleCoverChange({ pattern: option.value });
+                  }}
+                  className={`h-8 w-8 rounded-md border-2 ${
+                    coverStyle.pattern === option.value
+                      ? "border-foreground"
+                      : "border-transparent"
+                  }`}
+                  style={getCoverPatternStyle(option.value, coverStyle.color)}
+                />
+              ))}
+            </div>
+
+            <p className="mb-2 text-xs font-medium text-muted-foreground">Цвет</p>
+            <div className="flex flex-wrap gap-2">
+              {COVER_COLORS.map((color) => (
+                <button
+                  key={color}
+                  type="button"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    handleCoverChange({ color });
+                  }}
+                  className="h-6 w-6 rounded-full border-2"
+                  style={{
+                    backgroundColor: color,
+                    borderColor: coverStyle.color === color ? "#26241F" : "transparent",
+                  }}
+                  aria-label={color}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="px-0.5">
+        <p className="truncate text-sm font-semibold">{portfolio.title}</p>
+        <p className="text-xs text-muted-foreground">
+          {isPublic ? "Опубликовано" : "Черновик"} · {formatUpdatedAt(portfolio.updated_at)}
+        </p>
+      </div>
+
+      <div className="flex items-center gap-1.5 px-0.5">
         <button
           type="button"
           role="switch"
@@ -87,36 +188,27 @@ export function PortfolioCard({
           aria-label="Публичный доступ"
           disabled={isPending}
           onClick={handleToggle}
-          className={`relative h-6 w-11 shrink-0 rounded-full transition-colors disabled:opacity-60 ${
+          className={`relative h-5 w-9 shrink-0 rounded-full transition-colors disabled:opacity-60 ${
             isPublic ? "bg-foreground" : "bg-black/10"
           }`}
         >
           <span
-            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${
-              isPublic ? "translate-x-5" : "translate-x-0.5"
+            className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${
+              isPublic ? "translate-x-4" : "translate-x-0.5"
             }`}
           />
         </button>
-      </div>
 
-      <button
-        type="button"
-        onClick={handleCopyLink}
-        disabled={!isPublic}
-        className="flex items-center justify-center gap-2 rounded-full border border-border px-4 py-2.5 text-xs font-medium text-foreground disabled:opacity-40"
-      >
-        {copied ? (
-          <>
-            <Check className="h-3.5 w-3.5" />
-            Скопировано!
-          </>
-        ) : (
-          <>
-            <Copy className="h-3.5 w-3.5" />
-            Скопировать ссылку
-          </>
-        )}
-      </button>
+        <button
+          type="button"
+          onClick={handleCopyLink}
+          disabled={!isPublic}
+          aria-label="Скопировать публичную ссылку"
+          className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-black/5 disabled:opacity-30"
+        >
+          {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+        </button>
+      </div>
     </div>
   );
 }

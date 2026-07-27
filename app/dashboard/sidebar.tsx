@@ -13,7 +13,7 @@ export function Sidebar({ displayName }: { displayName: string }) {
   const pathname = usePathname();
 
   return (
-    <aside className="flex w-64 shrink-0 flex-col gap-8 border-r border-border px-4 py-6">
+    <aside className="hidden w-64 shrink-0 flex-col gap-8 border-r border-border px-4 py-6 md:flex">
       <div className="flex items-center gap-2 px-2">
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent-orange text-sm font-bold">
           D.

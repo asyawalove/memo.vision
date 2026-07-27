@@ -41,7 +41,7 @@ export default async function DashboardPage() {
       .maybeSingle(),
     supabase
       .from("portfolios")
-      .select("id, title, slug, cover_image_url, is_public")
+      .select("id, title, slug, is_public, updated_at, cover_style")
       .eq("user_id", userData.user.id)
       .order("created_at", { ascending: false }),
   ]);
@@ -50,44 +50,33 @@ export default async function DashboardPage() {
 
   return (
     <main className="flex flex-1 flex-col gap-8 p-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">
-            {getGreeting(new Date().getHours())}
-            {firstName ? `, ${firstName}` : ""}!
-          </h1>
-          <p className="text-sm text-muted-foreground">{getToday()}</p>
-        </div>
-
-        <form action={createPortfolio}>
-          <button
-            type="submit"
-            className="flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background"
-          >
-            <Plus className="h-4 w-4" />
-            Создать новое
-          </button>
-        </form>
+      <div>
+        <h1 className="text-2xl font-bold">
+          {getGreeting(new Date().getHours())}
+          {firstName ? `, ${firstName}` : ""}!
+        </h1>
+        <p className="text-sm text-muted-foreground">{getToday()}</p>
       </div>
 
-      {portfolios && portfolios.length > 0 ? (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {portfolios.map((portfolio, index) => (
-            <PortfolioCard
-              key={portfolio.id}
-              portfolio={portfolio}
-              username={profile?.username ?? ""}
-              accentIndex={index}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="rounded-3xl bg-card p-10 text-center shadow-[0_1px_2px_rgba(38,36,31,0.06)]">
-          <p className="text-sm text-muted-foreground">
-            У вас пока нет портфолио. Нажмите «Создать новое», чтобы начать.
-          </p>
-        </div>
-      )}
+      <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
+        <form action={createPortfolio} className="contents">
+          <button
+            type="submit"
+            className="flex aspect-[3/4] w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-black/20 text-muted-foreground transition-colors hover:border-black/35 hover:text-foreground"
+          >
+            <Plus className="h-6 w-6" />
+            <span className="text-sm font-medium">Новое портфолио</span>
+          </button>
+        </form>
+
+        {portfolios?.map((portfolio) => (
+          <PortfolioCard
+            key={portfolio.id}
+            portfolio={portfolio}
+            username={profile?.username ?? ""}
+          />
+        ))}
+      </div>
     </main>
   );
 }
