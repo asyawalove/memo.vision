@@ -30,3 +30,18 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
 }
+
+/* BlockNote renders link marks as plain <a> tags with no styling class of
+   their own, and Tailwind's Preflight strips the browser's default link
+   color/underline — so links in portfolio content need an explicit rule.
+   Underline (not a hardcoded color) keeps them visible against any
+   custom page text color the user picks. */
+.bn-inline-content a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.bn-inline-content a:hover {
+  opacity: 0.75;
+}
