@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState, useTransition } from "react";
-import { Check, Copy, Palette } from "lucide-react";
+import { Check, Palette, Share2 } from "lucide-react";
 import { setPortfolioCoverStyle, setPortfolioVisibility } from "./actions";
 import {
   COVER_COLORS,
@@ -50,7 +50,7 @@ export function PortfolioCard({
   const [coverStyle, setCoverStyle] = useState<PortfolioCoverStyle>(
     parseCoverStyle(portfolio.cover_style)
   );
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const [copied, setCopied] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
@@ -66,14 +66,6 @@ export function PortfolioCard({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [pickerOpen]);
 
-  function handleToggle() {
-    const next = !isPublic;
-    setIsPublic(next);
-    startTransition(async () => {
-      await setPortfolioVisibility(portfolio.id, next);
-    });
-  }
-
   function handleCoverChange(next: Partial<PortfolioCoverStyle>) {
     const merged = { ...coverStyle, ...next };
     setCoverStyle(merged);
@@ -82,11 +74,18 @@ export function PortfolioCard({
     });
   }
 
-  async function handleCopyLink() {
+  async function handleShare() {
     const url = `${window.location.origin}/u/${username}/${portfolio.slug}`;
     await navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+
+    if (!isPublic) {
+      setIsPublic(true);
+      startTransition(async () => {
+        await setPortfolioVisibility(portfolio.id, true);
+      });
+    }
   }
 
   return (
@@ -108,18 +107,34 @@ export function PortfolioCard({
           </div>
         </Link>
 
-        <button
-          type="button"
-          onClick={(event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            setPickerOpen((value) => !value);
-          }}
-          aria-label="Изменить обложку"
-          className="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/85 text-foreground opacity-100 shadow-sm transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
-        >
-          <Palette className="h-3.5 w-3.5" />
-        </button>
+        <div className="absolute right-2 top-2 z-10 flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              handleShare();
+            }}
+            aria-label="Поделиться"
+            title="Поделиться публичной ссылкой"
+            className="flex h-7 w-7 items-center justify-center rounded-full bg-white/85 text-foreground opacity-100 shadow-sm transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
+          >
+            {copied ? <Check className="h-3.5 w-3.5" /> : <Share2 className="h-3.5 w-3.5" />}
+          </button>
+
+          <button
+            type="button"
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              setPickerOpen((value) => !value);
+            }}
+            aria-label="Изменить обложку"
+            className="flex h-7 w-7 items-center justify-center rounded-full bg-white/85 text-foreground opacity-100 shadow-sm transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
+          >
+            <Palette className="h-3.5 w-3.5" />
+          </button>
+        </div>
 
         {pickerOpen && (
           <div
@@ -175,39 +190,7 @@ export function PortfolioCard({
 
       <div className="px-0.5">
         <p className="truncate text-sm font-semibold">{portfolio.title}</p>
-        <p className="text-xs text-muted-foreground">
-          {isPublic ? "Опубликовано" : "Черновик"} · {formatUpdatedAt(portfolio.updated_at)}
-        </p>
-      </div>
-
-      <div className="flex items-center gap-1.5 px-0.5">
-        <button
-          type="button"
-          role="switch"
-          aria-checked={isPublic}
-          aria-label="Публичный доступ"
-          disabled={isPending}
-          onClick={handleToggle}
-          className={`relative h-5 w-9 shrink-0 rounded-full transition-colors disabled:opacity-60 ${
-            isPublic ? "bg-foreground" : "bg-black/10"
-          }`}
-        >
-          <span
-            className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${
-              isPublic ? "translate-x-4" : "translate-x-0.5"
-            }`}
-          />
-        </button>
-
-        <button
-          type="button"
-          onClick={handleCopyLink}
-          disabled={!isPublic}
-          aria-label="Скопировать публичную ссылку"
-          className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-black/5 disabled:opacity-30"
-        >
-          {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-        </button>
+        <p className="text-xs text-muted-foreground">{formatUpdatedAt(portfolio.updated_at)}</p>
       </div>
     </div>
   );
