@@ -15,6 +15,7 @@ import {
   Image as ImageIcon,
   List,
   ListOrdered,
+  Megaphone,
   Minus,
   Pipette,
   Strikethrough,
@@ -49,16 +50,19 @@ function PanelRow({
   label,
   onClick,
   active,
+  title,
 }: {
   icon: ComponentType<{ className?: string }>;
   label: string;
   onClick: () => void;
   active?: boolean;
+  title?: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
+      title={title}
       className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm transition-colors ${
         active ? "bg-foreground text-background" : "text-foreground hover:bg-black/5"
       }`}
@@ -218,6 +222,12 @@ export function EditorSidePanel({
               icon={Minus}
               label="Разделитель"
               onClick={() => insertBlock({ type: "divider" })}
+            />
+            <PanelRow
+              icon={Megaphone}
+              label="Плашка"
+              title={'Например: "Моя роль", "Инструменты", "Ключевой инсайт"'}
+              onClick={() => insertBlock({ type: "callout" })}
             />
           </div>
         )}

@@ -1,10 +1,12 @@
 import { BlockNoteEditor, BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
 import { Gallery } from "./gallery-block";
+import { Callout } from "./callout-block";
 
 export const schema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
     gallery: Gallery(),
+    callout: Callout(),
   },
 });
 
