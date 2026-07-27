@@ -27,6 +27,14 @@ export async function uploadPortfolioImage(
   });
 
   if (error) {
+    console.error("[storage] upload failed:", {
+      message: error.message,
+      name: error.name,
+      file: file.name,
+      size: file.size,
+      type: file.type,
+      path,
+    });
     throw error;
   }
 

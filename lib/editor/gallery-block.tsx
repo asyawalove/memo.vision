@@ -56,18 +56,33 @@ function GalleryBlockContent(props: GalleryRenderProps) {
     setUploading(true);
     try {
       const uploaded: string[] = [];
+      let failedCount = 0;
+
       for (const file of filesToUpload) {
-        const result = await props.editor.uploadFile(file);
-        if (typeof result === "string") {
-          uploaded.push(result);
+        try {
+          const result = await props.editor.uploadFile(file);
+          if (typeof result === "string") {
+            uploaded.push(result);
+          }
+        } catch (thrown) {
+          failedCount += 1;
+          console.error("[gallery] upload failed for", file.name, thrown);
         }
       }
 
-      props.editor.updateBlock(props.block, {
-        props: { images: JSON.stringify([...images, ...uploaded]) },
-      });
+      if (uploaded.length > 0) {
+        props.editor.updateBlock(props.block, {
+          props: { images: JSON.stringify([...images, ...uploaded]) },
+        });
+      }
 
-      if (truncated) {
+      if (failedCount > 0) {
+        setError(
+          failedCount === 1
+            ? "Одно из фото не загрузилось, попробуйте ещё раз"
+            : `${failedCount} фото не загрузилось, попробуйте ещё раз`
+        );
+      } else if (truncated) {
         setError(`Можно добавить максимум ${MAX_IMAGES} изображений — часть файлов не загружена`);
       }
     } finally {
