@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { createPortfolio } from "./actions";
+import { NewPortfolioButton } from "./new-portfolio-button";
 import { PortfolioCard } from "./portfolio-card";
 
 export const metadata: Metadata = {
@@ -59,15 +58,7 @@ export default async function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
-        <form action={createPortfolio} className="contents">
-          <button
-            type="submit"
-            className="flex aspect-[3/4] w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-black/20 text-muted-foreground transition-colors hover:border-black/35 hover:text-foreground"
-          >
-            <Plus className="h-6 w-6" />
-            <span className="text-sm font-medium">Новое портфолио</span>
-          </button>
-        </form>
+        <NewPortfolioButton />
 
         {portfolios?.map((portfolio) => (
           <PortfolioCard
