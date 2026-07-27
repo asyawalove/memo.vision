@@ -8,7 +8,7 @@ const RATE_LIMIT_CODES = new Set([
 
 const INVALID_EMAIL_CODES = new Set(["email_address_invalid", "validation_failed"]);
 
-export function describeAuthError(error: AuthError): string {
+export function describeAuthError(error: AuthError): string | null {
   const code = error.code ?? "";
 
   if (RATE_LIMIT_CODES.has(code) || /rate limit/i.test(error.message)) {
@@ -19,5 +19,14 @@ export function describeAuthError(error: AuthError): string {
     return "Проверьте правильность email.";
   }
 
-  return "Что-то пошло не так, попробуйте ещё раз.";
+  // TEMP DEBUG: catch-all message disabled so we can see the real Supabase
+  // error for the "email send fails" report. Remove this console.error and
+  // restore the generic message once the root cause is identified.
+  console.error("[auth] unrecognized Supabase error:", {
+    message: error.message,
+    code: error.code,
+    status: error.status,
+    name: error.name,
+  });
+  return null;
 }
