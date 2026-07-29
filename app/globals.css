@@ -45,3 +45,10 @@ body {
 .bn-inline-content a:hover {
   opacity: 0.75;
 }
+
+/* Nested BlockNote editors inside a Columns block: the default 54px side
+   padding is sized for a full-width page, not a narrow column, and eats
+   most of the available width. */
+.bn-column-editor .bn-editor {
+  padding-inline: 4px;
+}
