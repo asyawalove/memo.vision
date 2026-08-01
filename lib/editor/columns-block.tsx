@@ -77,7 +77,7 @@ function ColumnEditor({
 
   return (
     <div
-      className={`bn-column-editor min-w-0 flex-1 rounded-lg transition-colors ${
+      className={`bn-column-editor w-full min-w-0 flex-1 overflow-x-auto rounded-lg transition-colors ${
         editable ? "hover:bg-black/[0.025]" : ""
       }`}
     >
@@ -102,7 +102,7 @@ function ColumnsBlockContent(props: ColumnsRenderProps) {
   }
 
   return (
-    <div className="flex w-full flex-col gap-2 sm:flex-row sm:gap-8" data-content-type="columns">
+    <div className="flex w-full flex-col gap-2 sm:flex-row sm:gap-8">
       {columnKeys.map((key) => (
         <ColumnEditor
           key={key}

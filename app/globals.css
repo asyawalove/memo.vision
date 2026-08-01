@@ -52,3 +52,13 @@ body {
 .bn-column-editor .bn-editor {
   padding-inline: 4px;
 }
+
+/* When a column's only content is a single non-text block (e.g. just a
+   photo), ProseMirror can't place a text cursor there on mount and falls
+   back to a NodeSelection — which paints a persistent blue outline around
+   it even though nothing was actually clicked. Not useful in this nested,
+   secondary editing context, so it's suppressed. */
+.bn-column-editor .bn-block-content.ProseMirror-selectednode > *,
+.bn-column-editor .ProseMirror-selectednode > .bn-block-content > * {
+  outline: none;
+}
