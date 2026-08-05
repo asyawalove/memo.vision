@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
+import { Eye, Pencil } from "lucide-react";
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
 import { schema, type PortfolioPartialBlock } from "@/lib/editor/schema";
@@ -46,6 +47,7 @@ export function PortfolioEditor({
   });
 
   const [status, setStatus] = useState<SaveStatus>("saved");
+  const [previewMode, setPreviewMode] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [style, setStyle] = useState<PortfolioStyleValues>(initialStyle);
@@ -83,27 +85,58 @@ export function PortfolioEditor({
 
   return (
     <div className="flex flex-1">
-      <div className="flex min-w-0 flex-1 flex-col gap-4 px-4 pt-4 pb-28 sm:px-6 sm:pt-6 sm:pb-28 md:p-8">
-        <div className="flex justify-end">
-          <span className={`rounded-full px-3 py-1 text-xs font-medium ${STATUS_STYLES[status]}`}>
-            {STATUS_LABELS[status]}
-          </span>
+      <div
+        className={`flex min-w-0 flex-1 flex-col gap-4 px-4 pt-4 sm:px-6 sm:pt-6 ${
+          previewMode ? "pb-4 sm:pb-6 md:p-8" : "pb-28 sm:pb-28 md:p-8"
+        }`}
+      >
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => setPreviewMode((value) => !value)}
+            className="flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-foreground hover:bg-black/5"
+          >
+            {previewMode ? (
+              <>
+                <Pencil className="h-3.5 w-3.5" />
+                Редактировать
+              </>
+            ) : (
+              <>
+                <Eye className="h-3.5 w-3.5" />
+                Просмотр
+              </>
+            )}
+          </button>
+
+          {!previewMode && (
+            <span className={`rounded-full px-3 py-1 text-xs font-medium ${STATUS_STYLES[status]}`}>
+              {STATUS_LABELS[status]}
+            </span>
+          )}
         </div>
         <div
           className={`flex-1 overflow-x-auto overflow-y-auto rounded-3xl p-4 shadow-[0_1px_2px_rgba(38,36,31,0.06)] sm:p-6 ${getFontClassName(style.fontFamily)}`}
           style={{ backgroundColor: style.backgroundColor, color: style.textColor }}
         >
-          <BlockNoteView editor={editor} onChange={handleChange} theme="light" />
+          <BlockNoteView
+            editor={editor}
+            editable={!previewMode}
+            onChange={previewMode ? undefined : handleChange}
+            theme="light"
+          />
         </div>
       </div>
 
-      <EditorSidePanel
-        editor={editor}
-        portfolioId={portfolioId}
-        userId={userId}
-        style={style}
-        onStyleChange={handleStyleChange}
-      />
+      {!previewMode && (
+        <EditorSidePanel
+          editor={editor}
+          portfolioId={portfolioId}
+          userId={userId}
+          style={style}
+          onStyleChange={handleStyleChange}
+        />
+      )}
     </div>
   );
 }
